@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}上传数据 - 冷链记录仪校时平台{% endblock %}
+{% block content %}
+<h2>上传记录仪数据</h2>
+
+<div class="card">
+  <form method="post" action="/upload" enctype="multipart/form-data">
+    <p><input type="file" name="file" accept=".csv,text/csv" required>
+       <button type="submit">上传</button></p>
+  </form>
+  <p class="hint">
+    CSV 三列：<span class="mono">segment,local_seconds,temperature</span>
+    （或中文表头 <span class="mono">开机段号,本地秒数,温度</span>；无表头时按此顺序）。<br>
+    规则：累计最多 {{ cfg.max_points }} 点；同一开机段内本地秒数不能重复；
+    任何一行不合格或重复，整批拒绝入库。行号为数据行序号（从 1 起，不含表头）。
+  </p>
+</div>
+
+{% if error %}
+<div class="msg err">
+  <b>{{ error.message }}</b>
+  {% if error.errors %}
+  <table>
+    <tr><th>行号</th><th>问题</th></tr>
+    {% for e in error.errors %}
+    <tr><td>{{ e.row }}</td><td>{{ e.message }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

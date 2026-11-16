@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    image: coldchain-calibrator:latest
+    ports:
+      - "8000:8000"
+    environment:
+      DB_PATH: /data/app.db
+      MAX_POINTS: "2000"
+      WORKER_ENABLED: "1"
+      # RECALC_DELAY: "0"   # 调试用：重算提交前人为延迟秒数
+    volumes:
+      - coldchain-data:/data
+    restart: unless-stopped
+
+volumes:
+  coldchain-data:

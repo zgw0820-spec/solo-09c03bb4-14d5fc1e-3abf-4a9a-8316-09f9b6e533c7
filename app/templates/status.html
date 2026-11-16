@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}处理状态 - 冷链记录仪校时平台{% endblock %}
+{% block content %}
+<h2>处理状态</h2>
+
+<div class="card">
+  <p>
+    已接纳读数：<b>{{ st.points.accepted }}</b> / {{ st.points.max }}
+    　待校时读数：<b>{{ st.pending_count }}</b>
+  </p>
+  <p>
+    重算状态：
+    {% if st.calc.status == 'running' %}<span class="warn">重算中…（本页每 3 秒自动刷新）</span>
+    {% elif st.calc.status == 'failed' %}<span class="err">失败（旧版本仍完整可用）</span>
+    {% else %}<span class="ok">空闲</span>{% endif %}
+    　校时版本：<b>v{{ st.calc.version }}</b>
+    　数据代次：{{ st.calc.state_generation }}　已校代次：{{ st.calc.calibrated_generation }}
+    {% if st.calc.dirty %}<span class="warn">（有变更待重算）</span>
+    {% else %}<span class="ok">（已是最新）</span>{% endif %}
+  </p>
+  {% if st.calc.last_error %}<p class="err">最近错误：{{ st.calc.last_error }}</p>{% endif %}
+  <p class="hint">更新时间：{{ st.calc.updated_at }}</p>
+  <form method="post" action="/recalc" style="margin:0">
+    <button type="submit">立即重算</button>
+  </form>
+</div>
+
+<h3>校时锚点</h3>
+{% if st.anchors %}
+<table>
+  <tr><th>段号</th><th>本地秒 1</th><th>UTC 1</th><th>本地秒 2</th><th>UTC 2</th>
+      <th>锚点版本</th><th>段内点数</th><th>落入范围</th><th>更新时间</th><th></th></tr>
+  {% for a in st.anchors %}
+  <tr>
+    <td>{{ a.segment }}</td>
+    <td class="mono">{{ a.local1 }}</td><td class="mono">{{ a.utc1 }}</td>
+    <td class="mono">{{ a.local2 }}</td><td class="mono">{{ a.utc2 }}</td>
+    <td>v{{ a.version }}</td>
+    <td>{{ a.point_count }}</td><td>{{ a.in_range_count }}</td>
+    <td class="mono">{{ a.updated_at }}</td>
+    <td><a href="/anchors?segment={{ a.segment }}">更正</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="hint">尚未录入锚点。请先到「校时锚点」页为各段录入两枚锚点。</p>
+{% endif %}
+
+<h3>上传批次</h3>
+{% if st.batches %}
+<table>
+  <tr><th>批次号</th><th>文件名</th><th>接纳行数</th><th>上传时间 (UTC)</th></tr>
+  {% for b in st.batches %}
+  <tr><td>{{ b.id }}</td><td>{{ b.filename }}</td><td>{{ b.rows_accepted }}</td>
+      <td class="mono">{{ b.created_at }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="hint">尚无上传批次。</p>
+{% endif %}
+{% endblock %}

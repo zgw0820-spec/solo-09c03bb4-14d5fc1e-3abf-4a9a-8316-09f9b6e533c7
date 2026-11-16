@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}按日查询 - 冷链记录仪校时平台{% endblock %}
+{% block content %}
+<h2>按 UTC 日期查询</h2>
+
+<div class="card">
+  <form method="get" action="/query">
+    <label>UTC 日期</label>
+    <input type="date" name="date" value="{{ date }}" required>
+    <button type="submit">查询</button>
+  </form>
+  {% if calc.dirty %}
+  <p class="warn">注意：当前有未完成的重算，查询结果可能随后变化（当前校时版本 v{{ calc.version }}）。</p>
+  {% endif %}
+</div>
+
+{% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+
+{% if result %}
+<h3>{{ result.date }}（UTC）已校时读数：{{ result.count }} 条
+    <span class="hint">（校时版本 v{{ result.calc_version }}）</span></h3>
+{% if result.readings %}
+<table>
+  <tr><th>批次号</th><th>原行号</th><th>段号</th><th>本地秒数</th><th>温度</th>
+      <th>校时后 UTC</th><th>锚点版本</th><th>校时版本</th></tr>
+  {% for r in result.readings %}
+  <tr>
+    <td>{{ r.batch_id }}</td><td>{{ r.row_no }}</td><td>{{ r.segment }}</td>
+    <td class="mono">{{ r.local_seconds }}</td><td>{{ r.temperature }}</td>
+    <td class="mono">{{ r.utc_time }}</td>
+    <td>v{{ r.anchor_version }}</td><td>v{{ r.calc_version }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="hint">该日无已校时读数。</p>
+{% endif %}
+{% endif %}
+
+<h3>待校时读数（{{ pending_count }} 条）</h3>
+{% if pending %}
+<table>
+  <tr><th>批次号</th><th>原行号</th><th>段号</th><th>本地秒数</th><th>温度</th><th>原因</th></tr>
+  {% for p in pending %}
+  <tr>
+    <td>{{ p.batch_id }}</td><td>{{ p.row_no }}</td><td>{{ p.segment }}</td>
+    <td class="mono">{{ p.local_seconds }}</td><td>{{ p.temperature }}</td>
+    <td>{{ p.reason }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% if pending_count > pending|length %}
+<p class="hint">仅显示前 {{ pending|length }} 条，共 {{ pending_count }} 条。</p>
+{% endif %}
+{% else %}
+<p class="hint">没有待校时的读数。</p>
+{% endif %}
+{% endblock %}

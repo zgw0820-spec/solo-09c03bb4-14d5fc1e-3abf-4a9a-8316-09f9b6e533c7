@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}冷链记录仪校时平台{% endblock %}</title>
+{% if refresh %}<meta http-equiv="refresh" content="3">{% endif %}
+<style>
+  body{font-family:system-ui,"PingFang SC","Microsoft YaHei",sans-serif;margin:0;background:#f5f7fa;color:#222}
+  nav{background:#1f4e79;padding:10px 20px}
+  nav a{color:#fff;margin-right:18px;text-decoration:none;font-size:15px}
+  nav a:hover{text-decoration:underline}
+  main{max-width:1100px;margin:20px auto;padding:0 16px}
+  table{border-collapse:collapse;width:100%;background:#fff;margin:12px 0}
+  th,td{border:1px solid #dde3ea;padding:6px 10px;font-size:14px;text-align:left}
+  th{background:#eef2f7}
+  .card{background:#fff;border:1px solid #dde3ea;border-radius:8px;padding:16px;margin:12px 0}
+  .ok{color:#0a7a2f}.err{color:#b00020}.warn{color:#9a6a00}
+  .msg{padding:10px 14px;border-radius:6px;margin:10px 0}
+  .msg.ok{background:#e6f6ea}.msg.err{background:#fdecea}
+  input,select{padding:6px 8px;margin:4px 0;border:1px solid #c4cdd8;border-radius:4px;font-size:14px}
+  button{padding:7px 16px;background:#1f4e79;color:#fff;border:0;border-radius:4px;cursor:pointer;font-size:14px}
+  button:hover{background:#276094}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+  .hint{color:#667;font-size:13px}
+  label{display:inline-block;min-width:110px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/">处理状态</a>
+  <a href="/upload">上传数据</a>
+  <a href="/anchors">校时锚点</a>
+  <a href="/query">按日查询</a>
+</nav>
+<main>
+{% if msg %}<div class="msg {{ 'ok' if ok else 'err' }}">{{ msg }}</div>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

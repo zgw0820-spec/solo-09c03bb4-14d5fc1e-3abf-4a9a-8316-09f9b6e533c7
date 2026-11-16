@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}校时锚点 - 冷链记录仪校时平台{% endblock %}
+{% block content %}
+<h2>校时锚点</h2>
+
+<div class="card">
+  <p class="hint">
+    每段录入两枚「本地秒数 ↔ UTC」锚点，两锚点之间的读数按线性插值校时，范围外的读数留存待校时。<br>
+    约束：本地秒数 1 &lt; 本地秒数 2，且 UTC 必须递增。<b>更正已有锚点时必须提交所见版本</b>（下表「更正」链接会自动填入）。
+    时间一律按 UTC，格式如 <span class="mono">2026-01-01 08:00:00</span> 或 <span class="mono">2026-01-01T08:00:00Z</span>。
+  </p>
+  <form method="post" action="/anchors">
+    <p><label>开机段号</label>
+       <input type="number" name="segment" min="0" required
+              value="{{ prefill.segment if prefill else '' }}"></p>
+    <p><label>本地秒数 1</label>
+       <input type="number" name="local1" min="0" required
+              value="{{ prefill.local1 if prefill else '' }}">
+       <label>UTC 1</label>
+       <input type="text" name="utc1" size="24" placeholder="2026-01-01 08:00:00" required
+              value="{{ prefill.utc1 if prefill else '' }}"></p>
+    <p><label>本地秒数 2</label>
+       <input type="number" name="local2" min="0" required
+              value="{{ prefill.local2 if prefill else '' }}">
+       <label>UTC 2</label>
+       <input type="text" name="utc2" size="24" placeholder="2026-01-01 09:00:00" required
+              value="{{ prefill.utc2 if prefill else '' }}"></p>
+    <p><label>所见版本</label>
+       <input type="number" name="version" min="1"
+              value="{{ prefill.version if prefill else '' }}"
+              placeholder="{{ '更正时必填' if prefill else '新建留空' }}">
+       <span class="hint">新建留空；更正须填当前版本</span></p>
+    <p><button type="submit">保存并触发重算</button></p>
+  </form>
+  {% if error %}<div class="msg err">{{ error }}</div>{% endif %}
+</div>
+
+<h3>当前锚点</h3>
+{% if anchors %}
+<table>
+  <tr><th>段号</th><th>本地秒 1</th><th>UTC 1</th><th>本地秒 2</th><th>UTC 2</th>
+      <th>版本</th><th>段内点数</th><th>落入范围</th><th>更新时间</th><th></th></tr>
+  {% for a in anchors %}
+  <tr>
+    <td>{{ a.segment }}</td>
+    <td class="mono">{{ a.local1 }}</td><td class="mono">{{ a.utc1 }}</td>
+    <td class="mono">{{ a.local2 }}</td><td class="mono">{{ a.utc2 }}</td>
+    <td>v{{ a.version }}</td>
+    <td>{{ a.point_count }}</td><td>{{ a.in_range_count }}</td>
+    <td class="mono">{{ a.updated_at }}</td>
+    <td><a href="/anchors?segment={{ a.segment }}">更正</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="hint">尚未录入锚点。</p>
+{% endif %}
+{% endblock %}
